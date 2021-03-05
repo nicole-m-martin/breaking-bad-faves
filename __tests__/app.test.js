@@ -2,9 +2,10 @@ require('dotenv').config();
 
 const { execSync } = require('child_process');
 
-const fakeRequest = require('supertest');
+const request = require('supertest');
 const app = require('../lib/app');
 const client = require('../lib/client');
+// const { characters } = require('../data/characters');
 
 describe('app routes', () => {
   describe('routes', () => {
@@ -15,7 +16,7 @@ describe('app routes', () => {
   
       client.connect();
   
-      const signInData = await fakeRequest(app)
+      const signInData = await request(app)
         .post('/auth/signup')
         .send({
           email: 'jon@user.com',
@@ -31,35 +32,90 @@ describe('app routes', () => {
       return client.end(done);
     });
 
-    test('returns animals', async() => {
+    // POST test
+    test('.add a fave character post test', async() => {
 
-      const expectation = [
-        {
-          'id': 1,
-          'name': 'bessie',
-          'coolfactor': 3,
-          'owner_id': 1
-        },
-        {
-          'id': 2,
-          'name': 'jumpy',
-          'coolfactor': 4,
-          'owner_id': 1
-        },
-        {
-          'id': 3,
-          'name': 'spot',
-          'coolfactor': 10,
-          'owner_id': 1
-        }
-      ];
+      const fave = {
+        char_id: 3,
+        name: 'Skyler White',
+        birthday: '08-11-1970',
+        img: 'https://s-i.huffpost.com/gen/1317262/images/o-ANNA-GUNN-facebook.jpg',
+        status: 'Alive',
+        nickname: 'Sky',
+        portrayed: 'Anna Gunn'
+      };
 
-      const data = await fakeRequest(app)
-        .get('/animals')
+      const characterFave = [{
+        ...fave,
+        id: 4,
+        owner_id: 2
+        
+      }];
+
+      const data = await request(app)
+        .post('/api/characters')
+        .send(fave)
+        .set('Authorization', token)
         .expect('Content-Type', /json/)
         .expect(200);
 
-      expect(data.body).toEqual(expectation);
+      expect(data.body).toEqual(characterFave);
     });
+
+
+
+    // GET : return characters array TEST
+    // test('should respond with the characters', 
+    //   async() => {
+    //     const expectAllCharacters = [
+    //       {
+    //         char_id: 1,
+    //         name: 'Walter White',
+    //         birthday: '09-07-1958',
+    //         img: 'https://images.amcnetworks.com/amc.com/wp-content/uploads/2015/04/cast_bb_700x1000_walter-white-lg.jpg',
+    //         status: 'Deceased',
+    //         nickname: 'Heisenberg',
+    //         portrayed: 'Bryan Cranston'
+      
+    //       },
+    //       {
+    //         char_id: 2,
+    //         name: 'Jesse Pinkman',
+    //         birthday: '09-24-1984',
+    //         img: 'https://vignette.wikia.nocookie.net/breakingbad/images/9/95/JesseS5.jpg/revision/latest?cb=20120620012441',
+    //         status: 'Alive',
+    //         nickname: 'Cap n Cook',
+    //         portrayed: 'Aaron Paul'
+      
+    //       },
+    //       {
+    //         char_id: 3,
+    //         name: 'Skyler White',
+    //         birthday: '08-11-1970',
+    //         img: 'https://s-i.huffpost.com/gen/1317262/images/o-ANNA-GUNN-facebook.jpg',
+    //         status: 'Alive',
+    //         nickname: 'Sky',
+    //         portrayed: 'Anna Gunn'
+      
+    //       }];
+
+    //     const response = await request(app)
+    //       .get('/characters')
+    //       .expect('Content-Type', /json/)
+    //       .expect(200);
+
+    //     expect(response.body).toEqual(expectAllCharacters);
+       
+    //   });
+
+    // GET : return one character from breaking bad TEST
+    test('Pull a character from the breaking bad api', async () => {
+      await request(app)
+        .get('/breakingbad?name=Walter')
+        .expect('Content-Type', /json/)
+        .expect(200);
+        
+    });
+
   });
 });

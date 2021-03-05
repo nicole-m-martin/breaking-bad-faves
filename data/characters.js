@@ -1,4 +1,4 @@
-module.exports = [
+const characters = [
   {
     char_id: 1,
     name: 'Walter White',
@@ -31,3 +31,7 @@ module.exports = [
   },
 
 ];
+
+module.exports = {
+  characters
+};
